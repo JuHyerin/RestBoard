@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/board
+    username: root
+    password: jhr31127**
+  
+## mybatis 매핑 type을 짧게 쓰기 위한 설정 
+## mapper.xml에서 resultType을 지정할 때 com.god.bo.test.vo.TestVo 대신 TestVo로 간략히 할 수 있다. 
+mybatis: 
+  type-aliases-package: com.innilabs.restboard.entity
+##sqlSessionFactory.setConfigLocation(new ClassPathResource("mybatis-config.xml"));대체
+  config-location: classpath:mybatis-config.xml
+ # configuration:
+ #   map-underscore-to-camel-case: true
+  

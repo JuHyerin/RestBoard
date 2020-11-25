@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<form action="/posts/create" accept-charset="utf-8" method="POST" name="post">
+	<p>
+		<label>제목</label>
+		<input type="text" name="title" placeholder="제목입력">
+	</p>
+	<p>
+		<label>내용</label>
+		<input type="text" name="contents" placeholder="내용입력">
+	</p>
+		<input type="hidden" name="writer" th:value="${session.userInfo.userId}"/>
+	<p>
+		<input type="submit" value="등록">
+	</p>
+</form> 
+</body>
+</html>

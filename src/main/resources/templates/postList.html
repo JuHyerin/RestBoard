@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Post List</title>
+<script>
+    function fn_create(){
+        location.href='/posts';
+    }
+</script>
+</head>
+<body>
+
+<!--     <div th:object="${listRes}">
+        <th:block th:text="*{welcome}">하이</th:block>
+        <a th:if="*{loginCheck}" th:href="@{/users/logout}">로그아웃</a>
+        <a th:unless="*{loginCheck}" th:href="@{/users/login}">로그인</a>
+    </div> -->
+
+
+    <div>
+        <form action="/" method="GET" th:object="${listReq}">
+            <select th:field="*{option}">
+                <option th:value="title" selected>제목</option>
+                <option th:value="writer">작성자</option>
+            </select>
+            <input type="text" th:field="*{word}" th:value=${listRes.word}>
+            <input type="submit" value="검색">
+        </form>
+    </div>
+
+    
+
+    <div>
+        <table border="1">
+            <thead>
+                <th>아이디</th>
+                <th>제목</th>
+                <th>작성일</th>
+                <!-- <th>수정 및 삭제</th> -->
+            </thead>    
+            <tbody>
+                <tr style="cursor:pointer" th:each="post:${listRes.posts}" th:object="${post}">   
+                    <td th:text="*{postId}">postId</td>
+                    <td th:onclick="|javascript:fn_detail(*{postId})|" th:text="*{title}">title</td>
+                    <td th:text="*{createdAt}">createdAt</td>
+                    <!-- <td>
+                        <button th:onclick="|javascript:fn_update(*{postId})|">수정</button>
+                        <button th:onclick="|javascript:fn_delete(*{postId})|">삭제</button>
+                    </td> -->
+                </tr>
+        </tbody>
+        </table> 
+    </div>
+
+    <div>
+        <button th:onclick="|javascript:fn_create()|">게시물 작성</button>
+    </div>
+
+    <div th:object="${listReq}"
+        th:with="present=${listRes.paging.pageNo}, start=${listRes.paging.startPageNo}, 
+                end=${listRes.paging.endPageNo}, total=${listRes.paging.totalPages}">
+        <a th:if="${listRes.paging.pageNo} > 1" 
+            th:href="@{/posts/list(option=${param.option},word=${param.word})}">
+        처음</a> 
+         
+        <a th:if="start!=1" 
+            th:href="@{/posts/list(pageParam=${listRes.paging.startPageNo-1},option=${param.option},word=${param.word})}">
+        이전</a>
+
+        <th:block th:each="page:${#numbers.sequence(start, end)}">
+            <a th:text="${page}" 
+                th:href="@{/posts/list(pageParam=${page},option=${param.option},word=${param.word})}">
+             pageNo</a>
+        </th:block> 
+
+        <a th:if="end!=total" 
+            th:href="@{/posts/list(pageParam=${listRes.paging.endPageNo+1},option=${param.option},word=${param.word})}">
+        이후</a>
+
+        <a th:if="present!=total"
+            th:href="@{/posts/list(pageParam=${listRes.paging.totalPages},option=${param.option},word=${param.word})}">
+        끝</a>
+    </div>
+    <div>
+        <h3 th:text="${resultMsg}">message</h3>
+        <h3 th:text="${param.resultMsg}">message</h3>
+    </div> 
+</body>
+</html>
