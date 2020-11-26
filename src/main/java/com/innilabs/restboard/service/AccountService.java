@@ -5,13 +5,14 @@ import java.util.Collection;
 import java.util.List;
 
 import com.innilabs.restboard.dto.req.AccountReq;
-import com.innilabs.restboard.dto.res.SavedAccount;
-import com.innilabs.restboard.dto.res.SavedAccount.SavedAccountBuilder;
+import com.innilabs.restboard.dto.res.AccountRes;
+
 import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.mapper.AccountMapper;
 import com.innilabs.restboard.repository.AccountRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -54,14 +55,14 @@ public class AccountService implements UserDetailsService {
         return authorities;
     }
 
-    public Account save(AccountReq accountReq) throws Exception {
-        
+    public int save(AccountReq accountReq) throws Exception, DuplicateKeyException {
         accountReq.setPassword(passwordEncoder.encode(accountReq.getPassword()));                               
-        int isSaved = accountMapper.insertAuthority(accountReq.getAccountId(), accountReq.getRole());
-        
+        int isSaved = accountMapper.insertAccount(accountReq);
         if(isSaved<1){
             throw new Exception("회원가입 실패");
         }
-        return new Account(0,accountReq.getAccountId(), accountReq.getPassword());
+        accountMapper.insertAuthority(accountReq.getAccountId(), accountReq.getRole());
+        
+        return isSaved;
     }
 }

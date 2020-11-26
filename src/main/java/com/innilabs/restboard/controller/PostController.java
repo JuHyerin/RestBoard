@@ -4,14 +4,20 @@ import java.util.List;
 
 import com.innilabs.restboard.dto.req.PostReq;
 import com.innilabs.restboard.entity.Post;
+import com.innilabs.restboard.exception.BoardException;
 import com.innilabs.restboard.service.PostService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +32,7 @@ public class PostController {
 
     static final String REDIRECT_LIST_PAGE = "redirect:/posts/list"; 
 
+   
     @GetMapping("/")
      public String hi(){
         User principal = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal(); 
@@ -40,8 +47,21 @@ public class PostController {
     }
     
     @PostMapping("/posts")
-    public ResponseEntity<Integer> createPost(@RequestBody PostReq postReq){
-        int postId = postService.createPost(postReq);
-        return new ResponseEntity<>(postId, HttpStatus.OK);
+    public ResponseEntity<Integer> createPost(@RequestBody PostReq postReq) throws BoardException {
+        int createdPostId = postService.createPost(postReq);
+        return new ResponseEntity<>(createdPostId, HttpStatus.OK);
     }
+
+    @PostMapping("/posts/{postId}")
+    public ResponseEntity<Integer> updatePost(@PathVariable("postId") int postId, @RequestBody PostReq postReq) throws BoardException {
+        int isUpdated = postService.updatePost(postId, postReq);
+        return new ResponseEntity<Integer>(isUpdated, HttpStatus.OK);
+    } 
+    /* @PostAuthorize("isAuthenticated() and returnObject.writer==principal.username")
+    @PutMapping("/posts/{id}")
+    public ResponseEntity<Integer> updatePost(@PathVariable int postId,
+                                            @RequestBody PostReq postReq) {
+        //int isUpdated = postService.updatePost(postId, postReq);
+        return new ResponseEntity<Integer>(isUpdated, HttpStatus.OK);
+    } */
 }

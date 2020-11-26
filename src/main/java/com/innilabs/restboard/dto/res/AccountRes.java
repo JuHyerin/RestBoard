@@ -1,15 +1,13 @@
 package com.innilabs.restboard.dto.res;
 
-import org.springframework.security.core.GrantedAuthority;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Builder
 @Getter
-public class SavedAccount {
+public class AccountRes {
     private String accountId;
     private String password;
-    private GrantedAuthority authorities;
-
+    private String role;
 }

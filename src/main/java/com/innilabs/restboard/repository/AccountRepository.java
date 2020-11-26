@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.innilabs.restboard.dto.req.AccountReq;
-import com.innilabs.restboard.dto.res.SavedAccount;
 import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.entity.Authority;
 import com.innilabs.restboard.mapper.AccountMapper;
