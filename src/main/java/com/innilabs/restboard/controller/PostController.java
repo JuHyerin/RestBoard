@@ -28,10 +28,8 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
     
     private final PostService postService;
-    
 
     static final String REDIRECT_LIST_PAGE = "redirect:/posts/list"; 
-
    
     @GetMapping("/")
      public String hi(){

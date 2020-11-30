@@ -67,19 +67,23 @@ public class UserService implements UserDetailsService {
     }
 
 	public String signIn(AccountReq accountReq) {
-        //Account account = getAccountFromDB(accountReq.getAccountId());
+        String username = accountReq.getAccountId();
         Account account = accountMapper.readAccount(accountReq.getAccountId());
         if( account == null ) {
 			log.debug("## 계정정보가 존재하지 않습니다. ##");
-			throw new UsernameNotFoundException(accountReq.getAccountId());
+            //throw new UsernameNotFoundException(accountReq.getAccountId());
+            return null;
         }
         
         if(passwordEncoder.matches(accountReq.getPassword(), account.getPassword() ) ){
-            List<GrantedAuthority> authorities = getAuthorities(accountReq.getAccountId());
+            List<String> stringAuthority = accountMapper.readAuthority(username);
+            account.setRoles(stringAuthority);
+            List<GrantedAuthority> authorities = new ArrayList<>();
+            for(String authority : stringAuthority){
+                authorities.add(new SimpleGrantedAuthority(authority));
+            }
             account.setAuthorities(authorities);
-            List<String> posts = accountMapper.readPosts(accountReq.getAccountId());
-            account.setPosts(posts);
-
+             
             String token = tokenProvider.createToken(account);
             return token;
         }

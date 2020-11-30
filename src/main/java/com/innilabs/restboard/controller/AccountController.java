@@ -28,17 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AccountController {
     private final UserService userService;
 
-        /* 
-    @PostMapping(value="/signin")
-    public Result signin(String email, String password, HttpServletResponse response){
-    	Result result = Result.successInstance();
-        MemberMaster loginMember = memberService.signin(email, password);
-        String token = jwtService.createMember(loginMember);
-        response.setHeader("Authorization", token);
-        result.setData(loginMember);
-        return result;
-    }
- */
     //토큰 내려주는 역할
     @PostMapping("/users/signin")
     public ResponseEntity<?> userSignIn(@RequestBody AccountReq accountReq){

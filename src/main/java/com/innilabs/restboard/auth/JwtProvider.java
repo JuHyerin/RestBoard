@@ -1,7 +1,6 @@
 package com.innilabs.restboard.auth;
 
 import java.io.IOException;
-import java.nio.file.attribute.UserPrincipal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,12 +11,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import javax.swing.JWindow;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innilabs.restboard.dto.AccountDto;
 import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.util.StringUtil;
 import com.nimbusds.jose.JOSEException;
@@ -32,19 +27,18 @@ import com.nimbusds.jose.shaded.json.JSONObject;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtProvider {
 
     public static final String JWT_TOKEN_PREFIX = "Bearer ";
@@ -52,9 +46,7 @@ public class JwtProvider {
 
     public static final String CLAIM_EXPIRATION = "exp";
     public static final String CLAIM_ISSUED_AT = "iat";
-    public static final String CLAIM_USERNAME = "username";
-    public static final String CLAIM_USER_ROLES = "roles";
-    public static final String CLAIM_USER_WRITE = "write";
+    public static final String CLAIM_USER_INFO = "user";
 
     // @Value("${app.jwt.secret}")
     String secret = "qwertasdfg123412341739840719837jsdhkfjhaljhsdkjfha";
@@ -84,17 +76,21 @@ public class JwtProvider {
     }
 
     // exp, iat로 유효성 검사
-    public JWTClaimsSet validateToken(String token) {
-        JWTClaimsSet jwtclaims = parseTokenToCliams(token); // Token -> SignedJWT -> JWTClaimSet
+    public boolean validateToken(JWTClaimsSet jwtclaims) {
+        /* JWTClaimsSet jwtclaims = parseTokenToCliams(token); // Token -> SignedJWT -> JWTClaimSet */
 
         Date now = new Date();// 현재시간
         if (jwtclaims.getExpirationTime().before(now)) {
             throw new JwtException("token expire error");
+            /* log.error("토큰 유효기간 만료");
+            return false; */
         }
         if (jwtclaims.getIssueTime().after(now)) {
             throw new JwtException("message issue at error");
+            /* log.error("토큰 발행시각 오류");
+            return false; */
         }
-        return jwtclaims;
+        return true;
     }
 
     // Token을 SignedJWT로 바꾼 후 verify 성공하면 JWTClaimSet 반환
@@ -120,55 +116,48 @@ public class JwtProvider {
 
     // JWTCliamSet에서 사용자 정보 추출하여 토큰 생성
     public Authentication getAuthentication(String token) {
-        JWTClaimsSet validClaims = validateToken(token);
-        Map<String, Object> claimsMap = validClaims.getClaims();
-        // Account userDetails = (Account) claimsMap.get("user");
-        JSONObject obj = (JSONObject) claimsMap.get("user");
-        ObjectMapper m = new ObjectMapper();
-        Account userDetails = null;
-        AccountDto accountDto = null;
+        JWTClaimsSet claims = parseTokenToCliams(token);
+
+        JwtDto jwtDto = null;
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        try {
-            accountDto = m.readValue(obj.toJSONString(), AccountDto.class);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } 
-        accountDto.getRoles().forEach(e->{
-            authorities.add(new SimpleGrantedAuthority(e));
-        });
-        return new UsernamePasswordAuthenticationToken(accountDto.getUsername(), null, authorities);
-    } 
-    
-    //Token의 ClaimSet 생성
+
+        if(validateToken(claims)){
+            Map<String, Object> claimsMap = claims.getClaims();
+            JSONObject jsonClaim = (JSONObject) claimsMap.get("user");
+            ObjectMapper m = new ObjectMapper();
+            try { 
+                jwtDto = m.readValue(jsonClaim.toJSONString(), JwtDto.class); 
+            } catch (IOException e) { 
+                log.error("JSON -> JwtDto 오류", e); 
+            } 
+            jwtDto.getRoles().forEach(e->{authorities.add(new SimpleGrantedAuthority(e));} );
+        }
+        return new UsernamePasswordAuthenticationToken(jwtDto, null, authorities);
+    }
+
+    // Token의 ClaimSet 생성 (Map->JsonObject)
     public String createToken(Account account) {
         Map<String, Object> claims = new HashMap<String, Object>();
         Date now = new Date();
         Date exp = new Date(now.getTime() + this.tokenExpire);
-        claims.put(CLAIM_ISSUED_AT, now.getTime()/1000);
-        claims.put(CLAIM_EXPIRATION, exp.getTime()/1000);
-        /* claims.put(CLAIM_USERNAME, account.getAccountId());
-        claims.put(CLAIM_USER_ROLES, account.getAuthorities());
-        claims.put(CLAIM_USER_WRITE, account.getPosts());
- */     AccountDto accountDto = new AccountDto();
-        
-        accountDto.setUsername(account.getAccountId());
-        account.getAuthorities().forEach(e->{
-            accountDto.getRoles().add(e.getAuthority());
-        });
-        claims.put("user", accountDto);
-        // JSONObject obj = new JSONObject(account);
+        claims.put(CLAIM_ISSUED_AT, now.getTime() / 1000);
+        claims.put(CLAIM_EXPIRATION, exp.getTime() / 1000);
+
+        JwtDto jwtDto = new JwtDto();
+        jwtDto.setUsername(account.getUsername());
+        jwtDto.setName(account.getName());
+        jwtDto.setEmail(account.getEmail());
+        jwtDto.setRoles(account.getRoles());
+        claims.put("user", jwtDto);
+
         return buildJwtToken(new JSONObject(claims));
-        // return buildJwtToken(claims);
-    } 
-   //authority Account에 다시 넣기
-   //principal에 account 통째로 넣기<-authorities 등 다른 필드들 뒤지기 힘듦
-    //Token 생성
-    public String buildJwtToken(JSONObject jsonObject /* Map<String,Object> jsonObject */) throws JwtException {
-        JWSHeader header = new JWSHeader
-                            .Builder(JWSAlgorithm.HS256)
-                            .type(JOSEObjectType.JWT)
-                            .build();
+    }
+
+    // Token 생성(JsonObject -> JWTClaimSet)
+    public String buildJwtToken(JSONObject jsonObject) throws JwtException {
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256)   
+                                        .type(JOSEObjectType.JWT)
+                                        .build();
         SignedJWT jwt;
         try {
             JWTClaimsSet claims = JWTClaimsSet.parse(jsonObject);

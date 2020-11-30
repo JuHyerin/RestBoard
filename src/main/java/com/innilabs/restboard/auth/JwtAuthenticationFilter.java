@@ -25,34 +25,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private JwtProvider tokenProvider;
 
-    /* @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-            String token = tokenProvider.resolveJwtToken((HttpServletRequest)request);
-            if (!StringUtil.isEmpty(token)) {
-                Authentication authentication = tokenProvider.getAuthentication(token);
-                // accountService.loadUserByUsername(user.getUsername());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-    
-            chain.doFilter(request, response);
-    } */
     public JwtAuthenticationFilter(JwtProvider tokenProvider){
         this.tokenProvider = tokenProvider;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-                String token = tokenProvider.resolveJwtToken((HttpServletRequest)request);
-                if (!StringUtil.isEmpty(token)) {
-                    Authentication authentication = tokenProvider.getAuthentication(token);
-                    // accountService.loadUserByUsername(user.getUsername());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
-
-                filterChain.doFilter(request, response);
-
+        throws ServletException, IOException 
+    {
+        String token = tokenProvider.resolveJwtToken((HttpServletRequest)request);
+        if (!StringUtil.isEmpty(token)) {
+            Authentication authentication = tokenProvider.getAuthentication(token);
+            // accountService.loadUserByUsername(user.getUsername());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        filterChain.doFilter(request, response);
     }
 
 
