@@ -20,6 +20,9 @@ public interface AccountMapper {
     @Select("SELECT * FROM ACCOUNT WHERE account_id=#{id}")
     public Account readAccount(String accountId);
     
+    @Select("SELECT post_id FROM POST WHERE writer=#{id}")
+    public List<String> readPosts(String accountId);
+
     @Select("SELECT authority_name FROM AUTHORITY WHERE username=#{id}")
     public List<String> readAuthority(String accountId);
 

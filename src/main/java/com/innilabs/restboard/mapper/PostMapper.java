@@ -33,7 +33,7 @@ public interface PostMapper {
 
 	@Insert("INSERT INTO POST (title, contents, writer, created_at) "+
 			"VALUES (#{post.title}, #{post.contents}, #{post.username}, now())")
-	@Options(useGeneratedKeys=true, keyProperty="postNo")
+	@Options(useGeneratedKeys=true, keyProperty="postId")
 	int insertPost(@Param("post") PostReq post);
 
 

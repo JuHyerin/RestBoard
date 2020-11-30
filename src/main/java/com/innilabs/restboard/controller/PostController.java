@@ -35,8 +35,7 @@ public class PostController {
    
     @GetMapping("/")
      public String hi(){
-        User principal = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal(); 
-        String username = principal.getUsername(); 
+        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return "<h1>hi "+username+"</h1>";
     } 
 
@@ -46,7 +45,7 @@ public class PostController {
         return new ResponseEntity<List<Post>>(posts, HttpStatus.OK);
     }
     
-    @PostMapping("/posts")
+    @PostMapping("/posts/create")
     public ResponseEntity<Integer> createPost(@RequestBody PostReq postReq) throws BoardException {
         int createdPostId = postService.createPost(postReq);
         return new ResponseEntity<>(createdPostId, HttpStatus.OK);

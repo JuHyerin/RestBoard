@@ -1,5 +1,13 @@
 package com.innilabs.restboard.entity;
 
+import java.util.Collection;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,8 +15,44 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Data
-public class Account {
+public class Account implements UserDetails{
     private int seq;
     private String accountId;
-    private String password;
+	private String password;
+	
+	//DB에서 authorities 가져올 때 각각 타입(GrantedAuhtority, String)에 맞게 넣어줌
+	@JsonIgnore
+    Collection<? extends GrantedAuthority> authorities; // json으로 변환이 안됨
+	private List<String> auths; // jwt 변환용
+	
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() { //맞춰주는게 좋음 누가 부를지 몰라
+		return this.authorities;
+	}
+	@Override
+	public String getUsername() {
+		return this.accountId;
+	}
+	@Override
+	public boolean isAccountNonExpired() {
+		return false;
+	}
+	@Override
+	public boolean isAccountNonLocked() {
+		return false;
+	}
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return false;
+	}
+	@Override
+	public boolean isEnabled() {
+		return false;
+	}
+	@Override
+	public String getPassword() {
+		return this.password;
+	}
+    
 }

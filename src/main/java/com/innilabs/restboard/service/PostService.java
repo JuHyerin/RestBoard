@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.innilabs.restboard.dto.req.PostReq;
+import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.entity.Post;
 import com.innilabs.restboard.exception.BoardException;
 import com.innilabs.restboard.mapper.PostMapper;
@@ -28,14 +29,16 @@ public class PostService {
 	}
 
 	public int createPost(PostReq postReq) throws BoardException {
-		User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		String username = principal.getUsername();
+		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(username==null){
+			throw new BoardException("인증되지 않은 사용자");
+		}
 		postReq.setUsername(username);
 		int isSaved = postMapper.insertPost(postReq);
 		if (isSaved < 1) {
 			throw new BoardException("게시물 생성 실패.");	
 		}
-		return postReq.getPostNo();
+		return postReq.getPostId();
 	}
 
 	public int updatePost(int postId, PostReq postReq) throws BoardException {
@@ -47,7 +50,7 @@ public class PostService {
 		}
 		//postId인 게시물 수정
 		//postReq.setUsername(username);
-		postReq.setPostNo(postId);
+		postReq.setPostId(postId);
 		int isUpdated = postMapper.updatePostByPostId(postReq);
 		if(isUpdated<1){
 			throw new BoardException("수정 실패.");

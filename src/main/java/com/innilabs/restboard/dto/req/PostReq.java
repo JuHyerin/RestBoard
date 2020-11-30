@@ -13,7 +13,7 @@ public class PostReq {
     private String contents;
     
     @JsonIgnore
-    private int postNo;
+    private int postId;
     
     @JsonIgnore
     private String username;
