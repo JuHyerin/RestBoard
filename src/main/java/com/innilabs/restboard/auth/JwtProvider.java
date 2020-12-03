@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innilabs.restboard.entity.Account;
+import com.innilabs.restboard.exception.JwtExpException;
+import com.innilabs.restboard.exception.JwtIatException;
 import com.innilabs.restboard.util.StringUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
@@ -64,7 +66,7 @@ public class JwtProvider {
     }
 
     // HttpHeader로부터 Token 추출
-    public String resolveJwtToken(HttpServletRequest request) {
+    public String resolveJwtToken(final HttpServletRequest request) {
         String authHeader = request.getHeader(AUTH_HEADER_STRING);
         if (!StringUtil.isEmpty(authHeader)) {
             if (authHeader.startsWith(JWT_TOKEN_PREFIX)) {
@@ -76,74 +78,68 @@ public class JwtProvider {
     }
 
     // exp, iat로 유효성 검사
-    public boolean validateToken(JWTClaimsSet jwtclaims) {
-        /* JWTClaimsSet jwtclaims = parseTokenToCliams(token); // Token -> SignedJWT -> JWTClaimSet */
-
-        Date now = new Date();// 현재시간
+    public boolean validateToken(final JWTClaimsSet jwtclaims) {
+        final Date now = new Date();// 현재시간
         if (jwtclaims.getExpirationTime().before(now)) {
-            throw new JwtException("token expire error");
-            /* log.error("토큰 유효기간 만료");
-            return false; */
+            throw new JwtExpException("token expire error");
         }
         if (jwtclaims.getIssueTime().after(now)) {
-            throw new JwtException("message issue at error");
-            /* log.error("토큰 발행시각 오류");
-            return false; */
+            throw new JwtIatException("message issue at error");
         }
         return true;
     }
 
     // Token을 SignedJWT로 바꾼 후 verify 성공하면 JWTClaimSet 반환
-    public JWTClaimsSet parseTokenToCliams(String token) {
+    public JWTClaimsSet parseTokenToCliams(final String token) {
         SignedJWT jwt;
         try {
             jwt = SignedJWT.parse(token);
             if (jwt.verify(verifier) == false) {
                 throw new JwtException("verify failed");
             }
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new JwtException("token parse error", e);
-        } catch (JOSEException e) {
+        } catch (final JOSEException e) {
             throw new JwtException("verifier error", e);
         }
 
         try {
             return jwt.getJWTClaimsSet();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new JwtException("claimsSet parse error", e);
         }
     }
 
-    // JWTCliamSet에서 사용자 정보 추출하여 토큰 생성
-    public Authentication getAuthentication(String token) {
-        JWTClaimsSet claims = parseTokenToCliams(token);
+    // JWTCliamSet에서 토큰 문자열에서 사용자 정보 추출하여 토큰 생성
+    public Authentication getAuthentication(final String token) {
+        final JWTClaimsSet claims = parseTokenToCliams(token);
 
         JwtDto jwtDto = null;
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-
         if(validateToken(claims)){
-            Map<String, Object> claimsMap = claims.getClaims();
-            JSONObject jsonClaim = (JSONObject) claimsMap.get("user");
-            ObjectMapper m = new ObjectMapper();
+            final Map<String, Object> claimsMap = claims.getClaims();
+            final JSONObject jsonClaim = (JSONObject) claimsMap.get("user");
+            final ObjectMapper m = new ObjectMapper();
             try { 
                 jwtDto = m.readValue(jsonClaim.toJSONString(), JwtDto.class); 
-            } catch (IOException e) { 
+            } catch (final IOException e) { 
                 log.error("JSON -> JwtDto 오류", e); 
             } 
+            //authorities = (ArrayList<SimpleGrantedAuthority>) jwtDto.getRoles().stream().map(e -> new SimpleGrantedAuthority(e));
             jwtDto.getRoles().forEach(e->{authorities.add(new SimpleGrantedAuthority(e));} );
         }
         return new UsernamePasswordAuthenticationToken(jwtDto, null, authorities);
     }
 
     // Token의 ClaimSet 생성 (Map->JsonObject)
-    public String createToken(Account account) {
-        Map<String, Object> claims = new HashMap<String, Object>();
-        Date now = new Date();
-        Date exp = new Date(now.getTime() + this.tokenExpire);
+    public String createToken(final Account account) {
+        final Map<String, Object> claims = new HashMap<String, Object>();
+        final Date now = new Date();
+        final Date exp = new Date(now.getTime() + this.tokenExpire);
         claims.put(CLAIM_ISSUED_AT, now.getTime() / 1000);
         claims.put(CLAIM_EXPIRATION, exp.getTime() / 1000);
 
-        JwtDto jwtDto = new JwtDto();
+        final JwtDto jwtDto = new JwtDto();
         jwtDto.setUsername(account.getUsername());
         jwtDto.setName(account.getName());
         jwtDto.setEmail(account.getEmail());
@@ -154,19 +150,19 @@ public class JwtProvider {
     }
 
     // Token 생성(JsonObject -> JWTClaimSet)
-    public String buildJwtToken(JSONObject jsonObject) throws JwtException {
-        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256)   
+    public String buildJwtToken(final JSONObject jsonObject) throws JwtException {
+        final JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256)   
                                         .type(JOSEObjectType.JWT)
                                         .build();
         SignedJWT jwt;
         try {
-            JWTClaimsSet claims = JWTClaimsSet.parse(jsonObject);
+            final JWTClaimsSet claims = JWTClaimsSet.parse(jsonObject);
             jwt = new SignedJWT(header, claims);
             jwt.sign(this.signer);
             return jwt.serialize();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new JwtException("claimsSet parse error", e);
-        } catch (JOSEException e) {
+        } catch (final JOSEException e) {
             throw new JwtException("sign error", e);
         }
     }

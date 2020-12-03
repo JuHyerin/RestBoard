@@ -12,7 +12,6 @@ public class PostReq {
     
     private String title;
     
-    @JsonIgnore
     private int postId;
     
     @JsonIgnore

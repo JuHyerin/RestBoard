@@ -11,7 +11,6 @@ import com.innilabs.restboard.util.PagingUtil;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Many;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.One;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
@@ -25,7 +24,7 @@ public interface PostMapper {
 	@Select({"<script> ",
 			"SELECT post_id, title, writer, created_at, updated_at ",
 			"FROM post ",
-			"WHERE is_deleted=0 ",
+			"WHERE is_deleted = 0 ",
 			"<if test='\"title\".equals(option)'>AND title LIKE #{word} </if> ",
 			"<if test='\"writer\".equals(option)'>AND writer LIKE #{word} </if> ",
 			"ORDER BY created_at DESC ",
@@ -45,43 +44,60 @@ public interface PostMapper {
 			"<if test='title != null'> title = #{title}, </if> ",
 			"<if test='contents != null'> contents = #{contents}, </if> ",
 			"updated_at = now() ",
-			"WHERE post_id = #{postId} AND writer = #{username}",
+			"WHERE post_id = #{postId} ",
+			"AND is_deleted = 0 ",
 			"</script>"})	
 	int updatePostByPostId(PostReq postReq);
 
+	
 	@Update({"UPDATE post SET ",
 			"deleted_at = now(), ",
 			"is_deleted = 1 ",
-			"WHERE post_id = #{postId} AND writer = #{username}"})	
-	int deletePostByPostId(@Param("postId") int postId, @Param("username") String username);
+			"WHERE post_id = #{postId}"})	
+	int deletePostByPostId(int postId);
+
 
 	@Select({"<script> ",
 			"SELECT COUNT(*) ",
 			"FROM post ",
-			"WHERE is_deleted=0 ",
+			"WHERE is_deleted = 0 ",
 			"<if test='\"title\".equals(option)'>AND title LIKE #{word}</if> ",
 			"<if test='\"writer\".equals(option)'>AND writer LIKE #{word}</if> ",
 			"</script>"})
 	int countPost(ListReq listReq);
 
-	@Select({"ßSELECT COUNT(*) ",
+
+	@Select({"SELECT COUNT(*) ",
 			"FROM COMMENT ",
 			"WHERE is_deleted = 0 AND post_id = #{postid} "})
 	int countComment(int postId);
-
-	@Results({
+	/* @Results({
 		@Result(property="comments", javaType=List.class, column="post_id", 
 				many=@Many(select = "getComments"))
 	})
 	@Select({"SELECT post_id, title, created_at, updated_at, writer, contents ",
 			"FROM post ",
-			"WHERE post_id = #{postId} ",
-			"AND is_deleted = 0 "})
-	Post selectPostWithComments(@Param("postId") int postId, PagingUtil paging);
-
+			"WHERE post_id = #{postId} AND is_deleted = 0 "})
+	Post selectPostWithComments(@Param("postId") int postId);
 	@Select({"SELECT * ",
 			"FROM COMMENT ",
 			"WHERE is_deleted = 0 AND post_id = #{postId} ",
 			"ORDER BY created_at DESC "})
-	List<Comment> getComments(@Param("postId") int postId);
+	List<Comment> getComments(@Param("postId") int postId); */
+	@Select({"SELECT post_id, title, created_at, updated_at, writer, contents ",
+			"FROM post ",
+			"WHERE post_id = #{postId} AND is_deleted = 0 "})
+	Post selectPostByPostId(int postId);
+	@Select({"SELECT * ",
+			"FROM COMMENT ",
+			"WHERE is_deleted = 0 AND post_id = #{postId} ",
+			"ORDER BY created_at DESC ",
+			"LIMIT #{paging.firstData}, #{paging.pageSize}"})
+	List<Comment> getComments(@Param("postId") int postId, @Param("paging") PagingUtil paging);
+
+
+	@Select({"SELECT writer ",
+			"FROM post ",
+			"WHERE is_deleted = 0 AND writer = #{username} AND post_id = #{postId}"})
+	String selectWriter(@Param("postId") int postId, @Param("username") String username);
 }

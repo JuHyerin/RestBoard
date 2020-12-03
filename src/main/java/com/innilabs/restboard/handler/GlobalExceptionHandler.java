@@ -1,9 +1,12 @@
 package com.innilabs.restboard.handler;
 
+import com.innilabs.restboard.dto.res.ErrorCode;
+import com.innilabs.restboard.dto.res.ResObj;
 import com.innilabs.restboard.exception.BoardException;
 
 import org.springframework.dao.DuplicateKeyException;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = DuplicateKeyException.class)
-    public String handleDuplicateKeyException(DuplicateKeyException e){
-    
+    public ResponseEntity<?> handleDuplicateKeyException(DuplicateKeyException e){
         log.error("handler:" + e.getMessage(), e);
-        return "<h1>키값중복</h1>";
-        
+        ResObj resObj = new ResObj(ErrorCode.ALREADY_EXISTS);
+        return new ResponseEntity<>(resObj, HttpStatus.OK);
     }
 
     @ExceptionHandler(value = Exception.class)
@@ -33,17 +35,8 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage(), e);
         return e.getMessage();
     }
-    /* @ExceptionHandler(value = DuplicateKeyException.class)
-    public ResponseEntity<ResObj> handleDuplicateKeyException(DuplicateKeyException e){
-    
-        log.error("handler:" + e.getMessage(), e);
-        //return "<h1>키값중복</h1>";
-        ResObj body = ResObj.builder()
-                .msg("아이디 중복되어 생성 실패")
-                .code("000")
-                .build();
-        return new ResponseEntity<ResObj>(body, HttpStatus.OK);
-    } */
+}    
+
 
     // @ExceptionHandler(value = Exception.class)
     // public ResponseEntity<ResObj> handlerBoardException(Exception e){
@@ -60,4 +53,3 @@ public class GlobalExceptionHandler {
     //     return new ResponseEntity<ResObj>(body, HttpStatus.OK);
     // }
     
-}

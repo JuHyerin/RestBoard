@@ -2,6 +2,7 @@ package com.innilabs.restboard.controller;
 
 
 import com.innilabs.restboard.dto.req.AccountReq;
+import com.innilabs.restboard.dto.res.ErrorCode;
 import com.innilabs.restboard.dto.res.ResObj;
 import com.innilabs.restboard.service.UserService;
 
@@ -26,18 +27,12 @@ public class AccountController {
         String token = userService.signIn(accountReq);
         ResObj resObj;
         if(token==null) {
-            resObj = ResObj.builder()
-                            .msg("로그인 실패")
-                            .contents(accountReq.getAccountId())
-                            .code("401")
-                            .build();
+            resObj = new ResObj(ErrorCode.NOT_FOUND_USER, accountReq.getAccountId());
+            
             
         } else {
-            resObj = ResObj.builder()
-                            .contents(token)
-                            .msg("로그인 성공")
-                            .code("200")
-                            .build();
+            resObj = new ResObj(ErrorCode.SUCCESS, token);
+            
         }
         return new ResponseEntity<>(resObj, HttpStatus.OK);
 }

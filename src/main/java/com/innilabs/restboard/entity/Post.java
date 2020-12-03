@@ -36,4 +36,8 @@ public class Post implements Serializable{
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private List<Comment> comments;
+
+	public void setComments(List<Comment> comments){
+		this.comments = comments;
+	}
 }
