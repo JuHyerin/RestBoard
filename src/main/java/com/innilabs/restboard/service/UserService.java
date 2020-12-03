@@ -6,17 +6,13 @@ import java.util.List;
 
 import com.innilabs.restboard.auth.JwtProvider;
 import com.innilabs.restboard.dto.req.AccountReq;
-import com.innilabs.restboard.dto.res.LoginUser;
 import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.mapper.AccountMapper;
-import com.innilabs.restboard.repository.AccountRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -43,6 +39,7 @@ public class UserService implements UserDetailsService {
 			log.debug("## 계정정보가 존재하지 않습니다. ##");
 			throw new UsernameNotFoundException(username);
         }        
+        account.setAuthorities(getAuthorities(username));
         return account;
     }
 
@@ -53,7 +50,7 @@ public class UserService implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority(authority));
         }
         return authorities;
-    }
+    } 
 
     public int save(AccountReq accountReq) throws Exception, DuplicateKeyException {
         accountReq.setPassword(passwordEncoder.encode(accountReq.getPassword()));                               
@@ -76,9 +73,9 @@ public class UserService implements UserDetailsService {
         }
         
         if(passwordEncoder.matches(accountReq.getPassword(), account.getPassword() ) ){
-            List<String> stringAuthority = accountMapper.readAuthority(username);
+            List<String> stringAuthority = accountMapper.readAuthority(username); //jwt
             account.setRoles(stringAuthority);
-            List<GrantedAuthority> authorities = new ArrayList<>();
+            List<GrantedAuthority> authorities = new ArrayList<>(); //userdetails
             for(String authority : stringAuthority){
                 authorities.add(new SimpleGrantedAuthority(authority));
             }

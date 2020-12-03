@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +26,7 @@ import com.nimbusds.jose.shaded.json.JSONObject;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -48,10 +48,10 @@ public class JwtProvider {
     public static final String CLAIM_ISSUED_AT = "iat";
     public static final String CLAIM_USER_INFO = "user";
 
-    // @Value("${app.jwt.secret}")
-    String secret = "qwertasdfg123412341739840719837jsdhkfjhaljhsdkjfha";
-    // @Value("${app.jwt.expire}") // 10*60
-    long tokenExpire = 1000L * 60 * 60;
+    @Value("${app.jwt.secret:qwertasdfg123412341739840719837jsdhkfjhaljhsdkjfha}")
+    String secret;
+    @Value("${app.jwt.expire:36000}") //1000L * 60 * 60 
+    long tokenExpire;
 
     JWSSigner signer;
     JWSVerifier verifier;

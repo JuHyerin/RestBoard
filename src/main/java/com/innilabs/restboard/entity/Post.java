@@ -2,12 +2,11 @@ package com.innilabs.restboard.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +20,7 @@ public class Post implements Serializable{
 	
 	private String writer;
 	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String contents;
 	
 	private LocalDateTime createdAt;
@@ -31,5 +31,9 @@ public class Post implements Serializable{
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private LocalDateTime deletedAt;
 	
-	private boolean isDeleted;
+	@JsonIgnore
+	private boolean deleted;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private List<Comment> comments;
 }

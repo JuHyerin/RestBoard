@@ -8,7 +8,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class AccountReq {
-    private String accountId;
+    private String accountId; //loadUserByUsername의 파라미터랑 필드이름 맞춰줘야함(username || security config에서 설정도 가능)
     private String password;
     private String role;
 }

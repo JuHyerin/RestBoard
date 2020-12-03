@@ -1,14 +1,11 @@
 package com.innilabs.restboard.repository;
 
-import java.util.Collection;
 import java.util.List;
 
 import com.innilabs.restboard.dto.req.AccountReq;
 import com.innilabs.restboard.entity.Account;
-import com.innilabs.restboard.entity.Authority;
 import com.innilabs.restboard.mapper.AccountMapper;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class AccountRepository {
 
     private final AccountMapper accountMapper;

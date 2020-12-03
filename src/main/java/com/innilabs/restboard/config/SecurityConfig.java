@@ -7,10 +7,7 @@ import com.innilabs.restboard.auth.JwtProvider;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -20,7 +17,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -57,12 +53,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()    
                 .httpBasic().disable() // rest api 이므로 기본설정 사용안함. 기본설정은 비인증시 로그인폼 화면으로 리다이렉트 된다.
                 .formLogin().disable()
-                //.loginProcessingUrl() //loadUserByUsername 접근함
                 .authorizeRequests()
                 // 페이지 권한 설정
-                .antMatchers("/users/signin","/posts").permitAll()
-                .antMatchers("/posts/create").hasRole("MEMBER") //자동으로 앞에 "ROLE_"이 삽입 
-
+                .antMatchers("/users/signin","/posts","/posts/detail/**","/login").permitAll()
+                .antMatchers("/posts/**","/").hasRole("MEMBER") //자동으로 앞에 "ROLE_"이 삽입 
+                .anyRequest().authenticated()  //  로그인된 사용자가 요청을 수행할 떄 필요하다  만약 사용자가 인증되지 않았다면, 스프링 시큐리티 필터는 요청을 잡아내고 사용자를 로그인 페이지로 리다이렉션 해준다
+           /* .and()    
+                 .formLogin()
+                //.loginProcessingUrl("/users/login")//
+                .usernameParameter("accountId")//loadUserByUsername 접근함
+                .defaultSuccessUrl("/")
+                .successHandler(successHandler) //토큰 생성하게함
+            */
             .and()                                              
                 .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
     }
