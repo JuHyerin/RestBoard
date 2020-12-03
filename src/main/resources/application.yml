@@ -1,7 +1,7 @@
 app:
   jwt: 
-    secret: qwertasdfg
-    expire: 60
+    secret: qwertasdfg123412341739840719837jsdhkfjhaljhsdkjfha
+    expire: 3600
 
 
 spring:
@@ -19,4 +19,5 @@ mybatis:
   config-location: classpath:mybatis-config.xml
  # configuration:
  #   map-underscore-to-camel-case: true
+ 
 

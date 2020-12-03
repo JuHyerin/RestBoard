@@ -48,7 +48,7 @@ public class AccountController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/users")
+    @PostMapping("/users/create")
     public ResponseEntity<Integer> createdUser(@RequestBody AccountReq account) throws Exception, DuplicateKeyException {
         int isSaved = userService.save(account);
         return new ResponseEntity<Integer>(isSaved, HttpStatus.OK);

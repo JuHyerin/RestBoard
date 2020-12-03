@@ -55,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .authorizeRequests()
                 // 페이지 권한 설정
-                .antMatchers("/users/signin","/posts","/posts/detail/**","/login").permitAll()
+                .antMatchers("/users/**","/posts","/posts/detail/**","/login").permitAll()
                 .antMatchers("/posts/**","/").hasRole("MEMBER") //자동으로 앞에 "ROLE_"이 삽입 
                 .anyRequest().authenticated()  //  로그인된 사용자가 요청을 수행할 떄 필요하다  만약 사용자가 인증되지 않았다면, 스프링 시큐리티 필터는 요청을 잡아내고 사용자를 로그인 페이지로 리다이렉션 해준다
            /* .and()    
