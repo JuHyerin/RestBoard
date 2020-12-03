@@ -48,9 +48,9 @@ public class JwtProvider {
     public static final String CLAIM_ISSUED_AT = "iat";
     public static final String CLAIM_USER_INFO = "user";
 
-    @Value("${app.jwt.secret:qwertasdfg123412341739840719837jsdhkfjhaljhsdkjfha}")
+    @Value("${app.jwt.secret}")
     String secret;
-    @Value("${app.jwt.expire:36000}") //1000L * 60 * 60 
+    @Value("${app.jwt.expire}") //1000L * 60 * 60 
     long tokenExpire;
 
     JWSSigner signer;

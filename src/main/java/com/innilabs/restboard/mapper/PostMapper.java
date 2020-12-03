@@ -24,7 +24,7 @@ public interface PostMapper {
 	
 	@Select({"<script> ",
 			"SELECT post_id, title, writer, created_at, updated_at ",
-			"FROM POST ",
+			"FROM post ",
 			"WHERE is_deleted=0 ",
 			"<if test='\"title\".equals(option)'>AND title LIKE #{word} </if> ",
 			"<if test='\"writer\".equals(option)'>AND writer LIKE #{word} </if> ",
@@ -34,14 +34,14 @@ public interface PostMapper {
 	List<Post> selectAllPosts(ListReq listReq);
 	
 
-	@Insert({"INSERT INTO POST (title, contents, writer, created_at) ",
-			"VALUES (#{post.title}, #{post.contents}, #{post.username}, now())"})
+	@Insert({"INSERT INTO post (title, contents, writer, created_at) ",
+			"VALUES (#{title}, #{contents}, #{username}, now())"})
 	@Options(useGeneratedKeys=true, keyProperty="postId")
-	int insertPost(@Param("post") PostReq post);
+	int insertPost(PostReq post);
 
 
 	@Update({"<script> ",
-			"UPDATE POST SET ",
+			"UPDATE post SET ",
 			"<if test='title != null'> title = #{title}, </if> ",
 			"<if test='contents != null'> contents = #{contents}, </if> ",
 			"updated_at = now() ",
@@ -49,7 +49,7 @@ public interface PostMapper {
 			"</script>"})	
 	int updatePostByPostId(PostReq postReq);
 
-	@Update({"UPDATE POST SET ",
+	@Update({"UPDATE post SET ",
 			"deleted_at = now(), ",
 			"is_deleted = 1 ",
 			"WHERE post_id = #{postId} AND writer = #{username}"})	
@@ -57,14 +57,14 @@ public interface PostMapper {
 
 	@Select({"<script> ",
 			"SELECT COUNT(*) ",
-			"FROM POST ",
+			"FROM post ",
 			"WHERE is_deleted=0 ",
 			"<if test='\"title\".equals(option)'>AND title LIKE #{word}</if> ",
 			"<if test='\"writer\".equals(option)'>AND writer LIKE #{word}</if> ",
 			"</script>"})
 	int countPost(ListReq listReq);
 
-	@Select("{SELECT COUNT(*) ",
+	@Select({"ßSELECT COUNT(*) ",
 			"FROM COMMENT ",
 			"WHERE is_deleted = 0 AND post_id = #{postid} "})
 	int countComment(int postId);
@@ -74,7 +74,7 @@ public interface PostMapper {
 				many=@Many(select = "getComments"))
 	})
 	@Select({"SELECT post_id, title, created_at, updated_at, writer, contents ",
-			"FROM POST ",
+			"FROM post ",
 			"WHERE post_id = #{postId} ",
 			"AND is_deleted = 0 "})
 	Post selectPostWithComments(@Param("postId") int postId, PagingUtil paging);
