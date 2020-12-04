@@ -142,7 +142,7 @@ public class JwtProvider {
         final JwtDto jwtDto = new JwtDto();
         jwtDto.setUsername(account.getUsername());
         jwtDto.setName(account.getName());
-        jwtDto.setEmail(account.getEmail());
+        //jwtDto.setEmail(account.getEmail());
         jwtDto.setRoles(account.getRoles());
         claims.put("user", jwtDto);
 

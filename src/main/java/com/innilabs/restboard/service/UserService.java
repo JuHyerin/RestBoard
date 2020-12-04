@@ -46,9 +46,8 @@ public class UserService implements UserDetailsService {
     public List<GrantedAuthority> getAuthorities(String username){
         List<String> stringAuthority = accountMapper.readAuthority(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for(String authority : stringAuthority){
-            authorities.add(new SimpleGrantedAuthority(authority));
-        }
+        stringAuthority.forEach(s->{authorities.add(new SimpleGrantedAuthority(s));});
+
         return authorities;
     } 
 
@@ -58,14 +57,14 @@ public class UserService implements UserDetailsService {
         if(isSaved<1){
             throw new Exception("회원가입 실패");
         }
-        accountMapper.insertAuthority(accountReq.getAccountId(), accountReq.getRole());
+        accountMapper.insertAuthority(accountReq.getEmail(), accountReq.getRole());
         
         return isSaved;
     }
 
 	public String signIn(AccountReq accountReq) {
-        String username = accountReq.getAccountId();
-        Account account = accountMapper.readAccount(accountReq.getAccountId());
+        String username = accountReq.getEmail();
+        Account account = accountMapper.readAccount(accountReq.getEmail());
         if( account == null ) {
 			log.debug("## 계정정보가 존재하지 않습니다. ##");
             //throw new UsernameNotFoundException(accountReq.getAccountId());

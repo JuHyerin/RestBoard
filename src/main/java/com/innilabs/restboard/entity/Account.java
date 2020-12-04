@@ -12,16 +12,16 @@ import lombok.Data;
 
 @Data
 public class Account implements UserDetails{
-	@JsonIgnore
-	private int seq;
 	
-	private String username;
+	private String username;//email
 	
 	private String password;
 
-	private String email;
-
 	private String name;
+	
+	//private String email;
+
+	private String picture;
 
 	//DB에서 authorities 가져올 때 각각 타입(GrantedAuhtority, String)에 맞게 넣어줌
 	@JsonIgnore
@@ -29,10 +29,21 @@ public class Account implements UserDetails{
 	private List<String> roles; // jwt 변환용
 	
 
+
+	public Account update(String name, String picture){
+		this.name = name;
+		this.picture = picture;
+		
+		return this;		
+	}
+
+
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() { //맞춰주는게 좋음 누가 부를지 몰라
 		return this.authorities;
 	}
+
 	@Override
 	public String getUsername() {
 		return this.username;

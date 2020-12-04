@@ -27,7 +27,7 @@ public class AccountController {
         String token = userService.signIn(accountReq);
         ResObj resObj;
         if(token==null) {
-            resObj = new ResObj(ErrorCode.NOT_FOUND_USER, accountReq.getAccountId());
+            resObj = new ResObj(ErrorCode.NOT_FOUND_USER, accountReq.getEmail());
             
             
         } else {

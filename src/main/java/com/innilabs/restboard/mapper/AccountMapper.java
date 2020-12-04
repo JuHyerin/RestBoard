@@ -9,23 +9,27 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface AccountMapper {
 
-    @Select("SELECT account_id as username, password, email, name FROM account WHERE account_id=#{id}")
-    public Account readAccount(String accountId);
+    @Select("SELECT email as username, password, name, picture FROM account WHERE email=#{email}")
+    public Account readAccount(String email);
     
-    @Select("SELECT post_id FROM post WHERE writer=#{id}")
-    public List<String> readPosts(String accountId);
+    @Select("SELECT post_id FROM post WHERE writer=#{email}")
+    public List<String> readPosts(String email);
 
-    @Select("SELECT authority_name FROM authority WHERE username=#{id}")
-    public List<String> readAuthority(String accountId);
+    @Select("SELECT authority_name FROM authority WHERE username=#{email}")
+    public List<String> readAuthority(String email);
     
-    @Insert("INSERT INTO account (account_id, password) VALUES (#{account.accountId}, #{account.password})")
-    public int insertAccount(@Param("account") AccountReq account);
+    @Insert("INSERT INTO account (email, password) VALUES (#{email}, #{password})")
+    public int insertAccount(AccountReq account);
     
     @Insert("INSERT INTO authority (username, authority_name) VALUES (#{username}, #{role})")
-    public int insertAuthority(@Param("username") String accountId, @Param("role") String role); 
+    public int insertAuthority(@Param("username") String email, @Param("role") String role); 
+
+    @Update("UPDATE account SET name = #{name}, picture = #{picture}")
+    public int updateAccount(Account account);
     
 }
