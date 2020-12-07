@@ -5,7 +5,9 @@ package com.innilabs.restboard.config;
 import com.innilabs.restboard.auth.JwtAuthenticationFilter;
 import com.innilabs.restboard.auth.JwtProvider;
 import com.innilabs.restboard.auth.MyOAuth2UserService;
+import com.innilabs.restboard.mapper.AccountMapper;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,7 +34,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     //private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtProvider tokenProvider;
+
     private final MyOAuth2UserService oAuth2UserService;
+    //private final AccountMapper accountMapper;
 
     @Override
     public void configure(WebSecurity web) throws Exception
@@ -59,7 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()    
                 .authorizeRequests()
                 .antMatchers("/users/**","/posts","/posts/detail/**","/login",
-                             "/oauth2/**","o").permitAll()
+                             "/oauth2/**").permitAll()
                 .antMatchers("/posts/**","/").hasRole("MEMBER") //자동으로 앞에 "ROLE_"이 삽입 
                 .anyRequest().authenticated()  //  로그인된 사용자가 요청을 수행할 떄 필요하다  만약 사용자가 인증되지 않았다면, 스프링 시큐리티 필터는 요청을 잡아내고 사용자를 로그인 페이지로 리다이렉션 해준다
             .and()
@@ -67,18 +71,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/")
             .and()
                 .oauth2Login()
+                .userInfoEndpoint()
+                .userService(oAuth2UserService);       
 
-                //.userInfoEndpoint()
-                //.userService(oAuth2UserService)
-            .and()                                              
-                .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+            //http.addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
- 
+    
 }
 
 

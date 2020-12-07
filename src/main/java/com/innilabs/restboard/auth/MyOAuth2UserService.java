@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.json.DupDetector;
 import com.innilabs.restboard.dto.req.AccountReq;
 import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.mapper.AccountMapper;
+import com.innilabs.restboard.util.AuthUtil;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MyOAuth2UserService implements OAuth2UserService {
     private final AccountMapper accountMapper;
+    
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService delegate = new DefaultOAuth2UserService();
@@ -52,24 +54,21 @@ public class MyOAuth2UserService implements OAuth2UserService {
     }
 
     private Account saveOrUpate(OAuthAttributes oAuthattributes){
-        Account account = accountMapper.readAccount(oAuthattributes.getEmail());
+        String email = oAuthattributes.getEmail();
+        Account account = accountMapper.readAccount(email);
         
         if(account == null){
             accountMapper.insertAccount(oAuthattributes.toDto());
-            return oAuthattributes.toEntity();
+            account = oAuthattributes.toEntity();
+            return account;
         }
         
-        account.setAuthorities(getAuthorities(oAuthattributes.getEmail()));
+        List<String> roles = accountMapper.readAuthority(email);
+        account.setRoles(roles);
+        account.setAuthorities(AuthUtil.rolesToAuthorities(roles));
         account.update(oAuthattributes.getName(), oAuthattributes.getPicture());
         accountMapper.updateAccount(account);
         return account;
     }
     
-    public List<GrantedAuthority> getAuthorities(String username){
-        List<String> stringAuthority = accountMapper.readAuthority(username);
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        stringAuthority.forEach(s->{authorities.add(new SimpleGrantedAuthority(s));});
-
-        return authorities;
-    } 
 }

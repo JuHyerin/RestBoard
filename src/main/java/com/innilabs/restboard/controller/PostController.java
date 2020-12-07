@@ -2,6 +2,7 @@ package com.innilabs.restboard.controller;
 
 import java.util.List;
 
+import com.innilabs.restboard.auth.JwtDto;
 import com.innilabs.restboard.dto.req.PostReq;
 import com.innilabs.restboard.dto.res.ErrorCode;
 import com.innilabs.restboard.dto.res.ResObj;
@@ -33,8 +34,9 @@ public class PostController {
    
     @GetMapping("/")
      public String hi(){
-        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return "<h1>hi "+username+"</h1>";
+        JwtDto user = (JwtDto)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String name = user.getName();
+        return "<h1>hi "+name+"</h1>";
     } 
 
     @GetMapping("/posts")

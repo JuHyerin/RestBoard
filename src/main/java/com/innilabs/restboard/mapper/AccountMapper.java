@@ -23,13 +23,13 @@ public interface AccountMapper {
     @Select("SELECT authority_name FROM authority WHERE username=#{email}")
     public List<String> readAuthority(String email);
     
-    @Insert("INSERT INTO account (email, password) VALUES (#{email}, #{password})")
+    @Insert("INSERT INTO account (email, password,name,picture) VALUES (#{email}, #{password},#{name},#{picture})")
     public int insertAccount(AccountReq account);
     
     @Insert("INSERT INTO authority (username, authority_name) VALUES (#{username}, #{role})")
     public int insertAuthority(@Param("username") String email, @Param("role") String role); 
 
-    @Update("UPDATE account SET name = #{name}, picture = #{picture}")
+    @Update("UPDATE account SET name = #{name}, picture = #{picture} WHERE email = #{username}")
     public int updateAccount(Account account);
     
 }

@@ -6,7 +6,11 @@ import java.util.Map;
 
 import com.innilabs.restboard.dto.req.AccountReq;
 import com.innilabs.restboard.entity.Account;
+import com.innilabs.restboard.util.AuthUtil;
 import com.innilabs.restboard.util.StringUtil;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -44,20 +48,20 @@ public class OAuthAttributes {
                                 .build();
     }
 
-    public Account toEntity(){
+    public Account toEntity(){ //save
         Account account = new Account();
         account.setName(name);
         account.setUsername(email);
         account.setPicture(picture);
-        ArrayList<String> roles = new ArrayList<String>();
+        ArrayList<String> roles = new ArrayList<>();
         roles.add("ROLE_MEMBER");
         account.setRoles(roles);
-
+        account.setAuthorities(AuthUtil.rolesToAuthorities(roles));
         return account;
     }
 
 
-    public AccountReq toDto(){
+    public AccountReq toDto(){ //save
         AccountReq accountReq = new AccountReq();
         accountReq.setEmail(email);
         accountReq.setName(name);
