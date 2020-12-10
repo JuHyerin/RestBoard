@@ -35,7 +35,11 @@ public class OAuthAttributes {
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String,Object> attributes){
         //소셜에 따라 Map의 key가 다름 -> registrationId로 구분해서 따로 OAuthAttributes 객체 만들어줘야함
-        return ofGoogle(userNameAttributeName, attributes);
+        switch(registrationId){
+            case "google": return ofGoogle(userNameAttributeName, attributes);
+            case "naver": return ofNaver(userNameAttributeName, attributes);
+        }
+        return null;
     }
 
     private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes){
@@ -44,6 +48,17 @@ public class OAuthAttributes {
                                 .email((String)attributes.get("email"))
                                 .picture((String)attributes.get("picture"))
                                 .attributes(attributes)
+                                .nameAttributeKey(userNameAttributeName)
+                                .build();
+    }
+
+    private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes){
+        Map<String, Object> naverAttributes = (Map<String, Object>) attributes.get("response");
+        return OAuthAttributes.builder()
+                                .name((String)naverAttributes.get("name"))
+                                .email((String)naverAttributes.get("email"))
+                                .picture((String)naverAttributes.get("profile_image"))
+                                .attributes(naverAttributes)
                                 .nameAttributeKey(userNameAttributeName)
                                 .build();
     }

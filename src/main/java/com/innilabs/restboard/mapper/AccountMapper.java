@@ -23,7 +23,7 @@ public interface AccountMapper {
     @Select("SELECT authority_name FROM authority WHERE username=#{email}")
     public List<String> readAuthority(String email);
     
-    @Insert("INSERT INTO account (email, password,name,picture) VALUES (#{email}, #{password},#{name},#{picture})")
+    @Insert("INSERT INTO account (email, password, name, picture) VALUES (#{email}, #{password}, #{name}, #{picture})")
     public int insertAccount(AccountReq account);
     
     @Insert("INSERT INTO authority (username, authority_name) VALUES (#{username}, #{role})")
