@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.json.DupDetector;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innilabs.restboard.dto.req.AccountReq;
 import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.mapper.AccountMapper;
@@ -29,13 +30,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class MyOAuth2UserService implements OAuth2UserService {
+public class MyOAuth2UserService extends DefaultOAuth2UserService {
     private final AccountMapper accountMapper;
     
-    @Override
+    @Override  //OAuth2Provider로 부터 AccessToken 얻은 후 호출됨 -> 사용자 정보 저장 또는 업데이트
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2UserService delegate = new DefaultOAuth2UserService();
-        OAuth2User oAuth2User = delegate.loadUser(userRequest);
+      
+        OAuth2User oAuth2User = super.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
@@ -47,10 +48,17 @@ public class MyOAuth2UserService implements OAuth2UserService {
         Account account = saveOrUpate(oAuthattributes);
         Authentication authentication = new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new DefaultOAuth2User(
+        /* ObjectMapper mapper = new ObjectMapper();
+        Map<String,Object> accountMap = mapper.convertValue(account, Map.class);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication); */
+
+        /* return new DefaultOAuth2User(
                     account.getAuthorities(), 
-                    oAuthattributes.getAttributes(), 
-                    oAuthattributes.getNameAttributeKey());
+                    oAuthattributes.getAttributes(), //Account->Map으로 넣어서 맞춰야함 
+                    //accountMap,
+                    oAuthattributes.getNameAttributeKey()); */
+        return account;
     }
 
     private Account saveOrUpate(OAuthAttributes oAuthattributes){
@@ -58,8 +66,11 @@ public class MyOAuth2UserService implements OAuth2UserService {
         Account account = accountMapper.readAccount(email);
         
         if(account == null){
-            accountMapper.insertAccount(oAuthattributes.toDto());
+            AccountReq accountReq = oAuthattributes.toDto();
+            accountMapper.insertAccount(accountReq);
+            accountMapper.insertAuthority(email, accountReq.getRole());
             account = oAuthattributes.toEntity();
+            account.setAttributes(oAuthattributes.getAttributes());
             return account;
         }
         
@@ -68,6 +79,7 @@ public class MyOAuth2UserService implements OAuth2UserService {
         account.setAuthorities(AuthUtil.rolesToAuthorities(roles));
         account.update(oAuthattributes.getName(), oAuthattributes.getPicture());
         accountMapper.updateAccount(account);
+        account.setAttributes(oAuthattributes.getAttributes());
         return account;
     }
     

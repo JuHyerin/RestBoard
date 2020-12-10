@@ -1,11 +1,14 @@
 package com.innilabs.restboard.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innilabs.restboard.auth.JwtDto;
 import com.innilabs.restboard.dto.req.PostReq;
 import com.innilabs.restboard.dto.res.ErrorCode;
 import com.innilabs.restboard.dto.res.ResObj;
+import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.entity.Post;
 import com.innilabs.restboard.exception.BoardException;
 import com.innilabs.restboard.service.PostService;
@@ -34,6 +37,9 @@ public class PostController {
    
     @GetMapping("/")
      public String hi(){
+        /* Map<String, Object> accountMap = (Map<String, Object>) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ObjectMapper mapper = new ObjectMapper();
+        Account user = mapper.convertValue(accountMap, Account.class); */
         JwtDto user = (JwtDto)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String name = user.getName();
         return "<h1>hi "+name+"</h1>";

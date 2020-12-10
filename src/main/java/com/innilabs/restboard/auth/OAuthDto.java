@@ -11,7 +11,7 @@ public class OAuthDto {
     private String email;
     private String name;
     private String picture;
-
+    private String userNameAttributeName;
     public static OAuthDto from(Account account){
         return OAuthDto.builder()
                         .email(account.getUsername())

@@ -71,7 +71,19 @@ public class UserService implements UserDetailsService {
             return null;
         }
         
-        if(passwordEncoder.matches(accountReq.getPassword(), account.getPassword() ) ){
+        if(account.getPassword()!=null && passwordEncoder.matches(accountReq.getPassword(), account.getPassword() ) ){
+            List<String> stringAuthority = accountMapper.readAuthority(username); //jwt
+            account.setRoles(stringAuthority);
+            List<GrantedAuthority> authorities = new ArrayList<>(); //userdetails
+            for(String authority : stringAuthority){
+                authorities.add(new SimpleGrantedAuthority(authority));
+            }
+            account.setAuthorities(authorities);
+             
+            String token = tokenProvider.createToken(account);
+            return token;
+        }
+        else if(account.getPassword() == null){
             List<String> stringAuthority = accountMapper.readAuthority(username); //jwt
             account.setRoles(stringAuthority);
             List<GrantedAuthority> authorities = new ArrayList<>(); //userdetails

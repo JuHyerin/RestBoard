@@ -9,6 +9,6 @@ import lombok.Data;
 public class JwtDto {
     private String username;//email
     private String name;
-    //private String email;
+    private String picture;
     private List<String> roles = new ArrayList<>();
 }

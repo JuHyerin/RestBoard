@@ -2,8 +2,7 @@ app:
   jwt: 
     secret: qwertasdfg123412341739840719837jsdhkfjhaljhsdkjfha
     expire: 3600
-
-
+ 
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
