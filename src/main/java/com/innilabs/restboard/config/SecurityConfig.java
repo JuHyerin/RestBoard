@@ -8,13 +8,10 @@ import com.innilabs.restboard.auth.JwtProvider;
 import com.innilabs.restboard.auth.MyOAuth2UserService;
 import com.innilabs.restboard.auth.OAuth2AuthenticationFailureHandler;
 import com.innilabs.restboard.auth.OAuth2AuthenticationSuccessHandler;
-import com.innilabs.restboard.mapper.AccountMapper;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,11 +28,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    //private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtProvider tokenProvider;
 
     private final MyOAuth2UserService oAuth2UserService;
-    //private final AccountMapper accountMapper;
 
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
@@ -75,8 +70,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
                 .oauth2Login()
                 .authorizationEndpoint()
-                    .baseUri("/oauth2/authorize")
-                    .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
+                    .baseUri("/oauth2/authorize") //소셜 로그인 필요 시 리다이렉트 되는 url
+                    .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository) //request 관련 repo(redirect cookie)
             .and()
                 .redirectionEndpoint()
                     .baseUri("/oauth2/callback/*") //에러 발생

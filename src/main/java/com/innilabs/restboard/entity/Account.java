@@ -16,6 +16,8 @@ import lombok.Data;
 @Data
 public class Account implements UserDetails, OAuth2User {
 
+	private static final long serialVersionUID = 1L;
+
 	private String username;// email
 
 	private String password;

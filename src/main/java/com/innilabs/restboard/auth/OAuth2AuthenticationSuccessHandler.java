@@ -2,7 +2,6 @@ package com.innilabs.restboard.auth;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,13 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.exception.BoardException;
 import com.innilabs.restboard.util.CookieUtil;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -60,18 +56,15 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 logger.error("OAuth2SuccessHandler.determineTargetUrl {}:", e);
             }
         }
-        //Authentication my = SecurityContextHolder.getContext().getAuthentication();
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl()); // 없으면 /반환
-        // String token = tokenProvider.createOAuth2Token(authentication);
-        // String token =
-        // tokenProvider.createToken((Account)my.getPrincipal());//createToken의 파라미터를
-        // Map으로 바꾸기.
+       
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> accountMap = mapper.convertValue(authentication.getPrincipal(), Map.class); 
         String token = tokenProvider.createOAuth2Token(accountMap);
 
-        //response.setHeader("Bearer ", token);
+        response.setHeader(JwtProvider.AUTH_HEADER_STRING, token); // JWT Header에 저장
+    
         return UriComponentsBuilder.fromUriString(targetUrl)
                                     .queryParam("token", token)
                                     .build()

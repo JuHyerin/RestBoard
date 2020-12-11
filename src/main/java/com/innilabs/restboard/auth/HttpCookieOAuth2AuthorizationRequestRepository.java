@@ -9,7 +9,6 @@ import com.innilabs.restboard.util.StringUtil;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Component
 public class HttpCookieOAuth2AuthorizationRequestRepository

@@ -52,8 +52,9 @@ public class OAuthAttributes {
                                 .build();
     }
 
+    //Naver는 resource가 attributes(Map) 밑의 "resource"의 value로 있음(Map)
     private static OAuthAttributes ofNaver(String userNameAttributeName, Map<String, Object> attributes){
-        Map<String, Object> naverAttributes = (Map<String, Object>) attributes.get("response");
+        Map<String, Object> naverAttributes = (Map<String, Object>) attributes.get("response"); 
         return OAuthAttributes.builder()
                                 .name((String)naverAttributes.get("name"))
                                 .email((String)naverAttributes.get("email"))

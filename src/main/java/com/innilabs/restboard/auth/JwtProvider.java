@@ -1,7 +1,6 @@
 package com.innilabs.restboard.auth;
 
 import java.io.IOException;
-import java.nio.file.attribute.UserPrincipal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innilabs.restboard.entity.Account;
@@ -68,18 +68,21 @@ public class JwtProvider {
     }
 
     // HttpHeader로부터 Token 추출
-    public String resolveJwtToken(HttpServletRequest request) {
-        String authHeader = request.getHeader(AUTH_HEADER_STRING); //Client가 header에 JWT 담아서 요청한 경우
+    public String resolveJwtToken(HttpServletRequest request, HttpServletResponse response) {
+       /*  String authHeader = Optional.of(response.getHeader(AUTH_HEADER_STRING)) //Client가 보낸 JWT
+                                    .orElse(request.getHeader(AUTH_HEADER_STRING)); //OAuth2SuccessHandler가 만든 JWT */
+        String authHeader = response.getHeader(AUTH_HEADER_STRING);
+        if(StringUtil.isEmpty(authHeader)){
+            //authHeader = request.getHeader(AUTH_HEADER_STRING);
+            authHeader = request.getParameter("token");
+        }
         if (!StringUtil.isEmpty(authHeader)) {
             if (authHeader.startsWith(JWT_TOKEN_PREFIX)) {
                 authHeader = authHeader.substring(JWT_TOKEN_PREFIX.length());
             }
             return authHeader;
         }
-        else{ //OAuth의 SuccessHandler에서 만든 JWT는 header에 없음, param에 있음
-            authHeader = request.getParameter("token");
-            return authHeader;
-        }
+        return null;
     }
 
     // exp, iat로 유효성 검사

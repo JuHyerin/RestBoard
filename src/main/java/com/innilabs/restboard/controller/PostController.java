@@ -1,16 +1,10 @@
 package com.innilabs.restboard.controller;
 
-import java.util.List;
-import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innilabs.restboard.auth.JwtDto;
 import com.innilabs.restboard.dto.req.PostReq;
-import com.innilabs.restboard.dto.res.ErrorCode;
 import com.innilabs.restboard.dto.res.ResObj;
-import com.innilabs.restboard.entity.Account;
-import com.innilabs.restboard.entity.Post;
-import com.innilabs.restboard.exception.BoardException;
+
 import com.innilabs.restboard.service.PostService;
 import com.innilabs.restboard.util.StringUtil;
 
@@ -24,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;

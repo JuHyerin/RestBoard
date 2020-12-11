@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Post implements Serializable{
 
+	private static final long serialVersionUID = 1L;
+
 	private int postId;
 
 	private String title;

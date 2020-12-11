@@ -1,13 +1,8 @@
 package com.innilabs.restboard.auth;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.json.DupDetector;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innilabs.restboard.dto.req.AccountReq;
 import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.mapper.AccountMapper;
@@ -15,14 +10,11 @@ import com.innilabs.restboard.util.AuthUtil;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -48,16 +40,7 @@ public class MyOAuth2UserService extends DefaultOAuth2UserService {
         Account account = saveOrUpate(oAuthattributes);
         Authentication authentication = new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        /* ObjectMapper mapper = new ObjectMapper();
-        Map<String,Object> accountMap = mapper.convertValue(account, Map.class);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication); */
-
-        /* return new DefaultOAuth2User(
-                    account.getAuthorities(), 
-                    oAuthattributes.getAttributes(), //Account->Map으로 넣어서 맞춰야함 
-                    //accountMap,
-                    oAuthattributes.getNameAttributeKey()); */
+        
         return account;
     }
 
