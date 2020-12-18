@@ -66,7 +66,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         response.setHeader(JwtProvider.AUTH_HEADER_STRING, token); // JWT Header에 저장
     
         return UriComponentsBuilder.fromUriString(targetUrl)
-                                    .queryParam("token", token)
+                                //    .queryParam("token", token)
                                     .build()
                                     .toUriString();
     }

@@ -3,15 +3,18 @@ package com.innilabs.restboard.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.innilabs.restboard.auth.JwtDto;
 import com.innilabs.restboard.auth.JwtProvider;
 import com.innilabs.restboard.dto.req.AccountReq;
+import com.innilabs.restboard.dto.res.ErrorCode;
+import com.innilabs.restboard.dto.res.ResObj;
 import com.innilabs.restboard.entity.Account;
 import com.innilabs.restboard.mapper.AccountMapper;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -61,7 +64,7 @@ public class UserService implements UserDetailsService {
         return isSaved;
     }
 
-	public String signIn(AccountReq accountReq) {
+	public ResObj signIn(AccountReq accountReq) {
         String username = accountReq.getEmail();
         Account account = accountMapper.readAccount(accountReq.getEmail());
         if( account == null ) {
@@ -70,7 +73,8 @@ public class UserService implements UserDetailsService {
             return null;
         }
         
-        if(account.getPassword()!=null && passwordEncoder.matches(accountReq.getPassword(), account.getPassword() ) ){
+        if(account.getPassword() == null || 
+            (account.getPassword()!=null && passwordEncoder.matches(accountReq.getPassword(), account.getPassword()) ) ){
             List<String> stringAuthority = accountMapper.readAuthority(username); //jwt
             account.setRoles(stringAuthority);
             List<GrantedAuthority> authorities = new ArrayList<>(); //userdetails
@@ -80,21 +84,16 @@ public class UserService implements UserDetailsService {
             account.setAuthorities(authorities);
              
             String token = tokenProvider.createToken(account);
-            return token;
+            JwtDto dto = JwtDto.of(account);
+            dto.setToken(token);
+            return new ResObj(ErrorCode.SUCCESS, dto);
         }
-        else if(account.getPassword() == null){
-            List<String> stringAuthority = accountMapper.readAuthority(username); //jwt
-            account.setRoles(stringAuthority);
-            List<GrantedAuthority> authorities = new ArrayList<>(); //userdetails
-            for(String authority : stringAuthority){
-                authorities.add(new SimpleGrantedAuthority(authority));
-            }
-            account.setAuthorities(authorities);
-             
-            String token = tokenProvider.createToken(account);
-            return token;
-        }
-    
 		return null;
+	}
+
+	public ResObj greet() {
+        JwtDto user = (JwtDto)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        //String name = user.getName();
+		return new ResObj(ErrorCode.SUCCESS, user);
 	}
 }

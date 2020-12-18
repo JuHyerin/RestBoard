@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,11 +72,20 @@ public class JwtProvider {
     public String resolveJwtToken(HttpServletRequest request, HttpServletResponse response) {
        /*  String authHeader = Optional.of(response.getHeader(AUTH_HEADER_STRING)) //Client가 보낸 JWT
                                     .orElse(request.getHeader(AUTH_HEADER_STRING)); //OAuth2SuccessHandler가 만든 JWT */
-        String authHeader = response.getHeader(AUTH_HEADER_STRING);
-        if(StringUtil.isEmpty(authHeader)){
-            //authHeader = request.getHeader(AUTH_HEADER_STRING);
-            authHeader = request.getParameter("token");
+        //String authHeader = response.getHeader(AUTH_HEADER_STRING);
+        String authHeader = request.getHeader(AUTH_HEADER_STRING);
+        Enumeration<String> headerNames =  request.getHeaderNames(); //request headers 출력
+        while(headerNames.hasMoreElements()){
+            String e = headerNames.nextElement();
+            log.info("e:{}, v:{}",e,request.getHeader(e));
         }
+        
+        /* if(StringUtil.isEmpty(authHeader)){
+            authHeader = request.getParameter("token");
+        } */
+        /* if(StringUtil.isEmpty(authHeader)){
+            authHeader = request.getHeader(AUTH_HEADER_STRING);
+        } */
         if (!StringUtil.isEmpty(authHeader)) {
             if (authHeader.startsWith(JWT_TOKEN_PREFIX)) {
                 authHeader = authHeader.substring(JWT_TOKEN_PREFIX.length());
@@ -86,7 +96,7 @@ public class JwtProvider {
     }
 
     // exp, iat로 유효성 검사
-    public boolean validateToken(JWTClaimsSet jwtclaims) {
+    public boolean validateToken(JWTClaimsSet jwtclaims) throws JwtException{
         Date now = new Date();// 현재시간
         if (jwtclaims.getExpirationTime().before(now)) {
             throw new JwtExpException("token expire error");
@@ -119,7 +129,7 @@ public class JwtProvider {
     }
 
     // JWTCliamSet에서 토큰 문자열에서 사용자 정보 추출하여 토큰 생성
-    public Authentication getAuthentication(String token) {
+    public Authentication getAuthentication(String token) throws JwtException{
          JWTClaimsSet claims = parseTokenToCliams(token);
 
         JwtDto jwtDto = null;

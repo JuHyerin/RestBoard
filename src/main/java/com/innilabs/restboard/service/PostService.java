@@ -28,7 +28,6 @@ public class PostService {
 
 	final static int COMMENT_PAGE_SIZE = 3;
 	final static int COMMENT_PAGE_BLOCK_SIZE = 2;
-
 	
 	public ResObj getAllPosts(Integer page, String option, String word) {
 		ListReq listReq = new ListReq();
@@ -50,7 +49,11 @@ public class PostService {
 	
 	public ResObj getPostDetail(int postId, Integer commentPage) {
 		PagingUtil paging = new PagingUtil(commentPage, COMMENT_PAGE_SIZE, COMMENT_PAGE_BLOCK_SIZE);
-		paging.setTotalData(postMapper.countComment(postId));
+		int countComment = postMapper.countComment(postId);
+		if (countComment == 0){
+			commentPage = 0; //댓글 없으면 페이징 x
+		}
+		paging.setTotalData(countComment);
 		if(commentPage>paging.getTotalPages()){
 			return new ResObj(ErrorCode.INVALID_PARAMETER);
 		}
