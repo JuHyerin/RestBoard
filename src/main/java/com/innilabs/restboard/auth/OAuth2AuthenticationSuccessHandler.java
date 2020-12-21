@@ -43,6 +43,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
+
+
     // 쿠키에 담긴 redirect_uri가 검증된 uri인지 확인 후 token 담아서 uri 반환
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) {
@@ -57,16 +59,15 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             }
         }
 
-        String targetUrl = redirectUri.orElse(getDefaultTargetUrl()); // 없으면 /반환
-       
+        //String targetUrl = redirectUri.orElse(getDefaultTargetUrl()); // 없으면 /반환
+        String targetUrl = redirectUri.orElse("http://localhost:8081/");
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> accountMap = mapper.convertValue(authentication.getPrincipal(), Map.class); 
         String token = tokenProvider.createOAuth2Token(accountMap);
 
         response.setHeader(JwtProvider.AUTH_HEADER_STRING, token); // JWT Header에 저장
-    
         return UriComponentsBuilder.fromUriString(targetUrl)
-                                //    .queryParam("token", token)
+                                    .queryParam("token", token)
                                     .build()
                                     .toUriString();
     }

@@ -62,13 +62,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/users/**","/posts/detail/**",
                              "/oauth2/**","/auth/**","/posts").permitAll()
-                .antMatchers("/hi", "/", "/posts/**").hasRole("MEMBER") //자동으로 앞에 "ROLE_"이 삽입 
+                .antMatchers("/hi",/*  "/",  */"/posts/**").hasRole("MEMBER") //자동으로 앞에 "ROLE_"이 삽입 
                 .anyRequest().authenticated()  //  로그인된 사용자가 요청을 수행할 떄 필요하다  만약 사용자가 인증되지 않았다면, 스프링 시큐리티 필터는 요청을 잡아내고 사용자를 로그인 페이지로 리다이렉션 해준다
             .and()
                 .oauth2Login()
                 .authorizationEndpoint()
                     .baseUri("/oauth2/authorize") //소셜 로그인 필요 시 리다이렉트 되는 url
-                 //   .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository) //request 관련 repo(redirect cookie)
+                   //.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository) //request 관련 repo(redirect cookie)
             .and()
                 .redirectionEndpoint()
                     .baseUri("/oauth2/callback/*") //에러 발생
