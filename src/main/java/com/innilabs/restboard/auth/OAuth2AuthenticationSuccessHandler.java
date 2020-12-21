@@ -60,16 +60,19 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         //String targetUrl = redirectUri.orElse(getDefaultTargetUrl()); // 없으면 /반환
-        String targetUrl = redirectUri.orElse("http://localhost:8081/");
+        String targetUrl = redirectUri.orElse("http://localhost:8081/oauth2redirect");
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> accountMap = mapper.convertValue(authentication.getPrincipal(), Map.class); 
         String token = tokenProvider.createOAuth2Token(accountMap);
 
         response.setHeader(JwtProvider.AUTH_HEADER_STRING, token); // JWT Header에 저장
-        return UriComponentsBuilder.fromUriString(targetUrl)
+        
+        //Vue에서 ?token= 형식으로 param 받기 어려움
+        /* return UriComponentsBuilder.fromUriString(targetUrl)
                                     .queryParam("token", token)
                                     .build()
-                                    .toUriString();
+                                    .toUriString();  */
+        return targetUrl+"/"+token;
     }
 
     //SPRING_SECURITY_LAST_EXCEPTION 세션 삭제

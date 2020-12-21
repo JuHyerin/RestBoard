@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,13 +54,4 @@ public class AccountController {
         return new ResponseEntity<Integer>(isSaved, HttpStatus.OK);
     }
     
-/*     @GetMapping("users/denied")
-    public ResponseEntity<ResObj> deniedUser(){
-        //return "<h1>권한 없는 사용자</h1>";
-        ResObj resObj = ResObj.builder()
-                                .msg("권한 없는 사용자")
-                                .code("403")
-                                .build();
-        return new ResponseEntity<ResObj>(resObj, HttpStatus.OK);
-    } */
 }

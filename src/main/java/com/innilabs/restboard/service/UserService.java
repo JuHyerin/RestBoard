@@ -96,4 +96,5 @@ public class UserService implements UserDetailsService {
         //String name = user.getName();
 		return new ResObj(ErrorCode.SUCCESS, user);
 	}
+
 }
