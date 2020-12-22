@@ -2,6 +2,7 @@ package com.innilabs.restboard.controller;
 
 
 import com.innilabs.restboard.auth.JwtDto;
+import com.innilabs.restboard.dto.req.DeletePostReq;
 import com.innilabs.restboard.dto.req.PostReq;
 import com.innilabs.restboard.dto.res.ResObj;
 
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 
@@ -87,10 +91,13 @@ public class PostController {
         return new ResponseEntity<>(resObj, HttpStatus.OK);
     } 
 
-  
+
+    //Client에서는 Json형태로 body에 담음
+    //Server에서 Json을 Object형태로 parsing함
+    //따라서 api의 parameter(@RequestBody)는 Object형태인게 좋음
     @PostMapping("/posts/delete")
-    public ResponseEntity<?> deletePost(@RequestBody int postId){
-        ResObj resObj = postService.deletePost(postId);
+    public ResponseEntity<?> deletePost(@RequestBody /* int postId */ DeletePostReq req){ 
+        ResObj resObj = postService.deletePost(req.getPostId());
         return new ResponseEntity<>(resObj, HttpStatus.OK);
     }
 }
